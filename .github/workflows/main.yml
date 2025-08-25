@@ -12,6 +12,6 @@ jobs:
       
       - name: Run API 1 - List with CSV
         run: |
-          newman run ./collection.json \
-            -e ./environment.json \
-            -d ./api1_products.csv
+          newman run collection.json \
+            -e environment.json \
+            -d api1_products.csv
