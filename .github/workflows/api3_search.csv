@@ -1,0 +1,16 @@
+﻿q,expect_status,expect_message,is_empty_array_data
+Pli,200,,0
+pli,200,,0
+Plí,200,,0
+MeoMeo,200,,1
+Bolt Cutt,200,,0
+i,200,,0
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,200,,1
+12345,200,,1
+⭐,200,,1
+ Pli ,200,,0
+ ,404,Returns when the method is not allowed for the requested route,1
+,404,Returns when the method is not allowed for the requested route,1
+Pli&Ham,200,,0
+Pli' OR '1'='1,200,,0
+<script>alert(1)</script>,200,,1
