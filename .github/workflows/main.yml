@@ -14,4 +14,4 @@ jobs:
         run: |
           newman run ./collection.json \
             -e ./environment.json \
-            -d ./data/api1_products.csv
+            -d ./api1_products.csv
