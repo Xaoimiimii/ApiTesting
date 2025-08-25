@@ -7,11 +7,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Postman CLI
+      - name: Install Newman
+        run: npm install -g newman
+      
+      - name: Run API 1 - List with CSV
         run: |
-          powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl-cli.pstmn.io/install/win64.ps1'))"
-      - name: Login to Postman CLI
-        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
-      - name: Run API tests
-        run: |
-          postman collection run "47639393-49c88702-7f96-4d10-9f95-b22b69af8ffa" -e "47639393-351c31a9-629b-4d5c-be6c-32b53ffc26d2"
+          newman run ./collection.json \
+            -e ./environment.json \
+            -d ./data/api1_products.csv
