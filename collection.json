@@ -1,0 +1,270 @@
+{
+	"info": {
+		"_postman_id": "49c88702-7f96-4d10-9f95-b22b69af8ffa",
+		"name": "Toolshop Products API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47639393",
+		"_collection_link": "https://gaococonut1199-263921.postman.co/workspace/Kh%C3%A1nh-Nh%C6%B0-Tr%E1%BA%A7n's-Workspace~877abc33-bf09-4cb9-8689-90982a6e84bb/collection/47639393-49c88702-7f96-4d10-9f95-b22b69af8ffa?action=share&source=collection_link&creator=47639393"
+	},
+	"item": [
+		{
+			"name": "GET /products (list + filter, sort, page)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const expected = +(pm.iterationData.get(\"expect_status\") || 200);\r",
+							"pm.test(\"Status matches expected\", () => pm.response.to.have.status(expected));\r",
+							"\r",
+							"// Parse body và chuẩn hoá mảng kết quả\r",
+							"let body; \r",
+							"try { body = pm.response.json(); } catch(e) { body = null; }\r",
+							"const items = Array.isArray(body?.data) ? body.data : [];\r",
+							"\r",
+							"if (pm.response.code === 200) {\r",
+							"    pm.test(\"Response has an array of items\", () => pm.expect(Array.isArray(items)).to.be.true);\r",
+							"\r",
+							"    // Kiểm tra filter best-effort\r",
+							"    const byBrand   = pm.iterationData.get(\"by_brand\");\r",
+							"    const byCat     = pm.iterationData.get(\"by_category\");\r",
+							"    const isRental  = pm.iterationData.get(\"is_rental\");\r",
+							"    const between   = pm.iterationData.get(\"between\");\r",
+							"\r",
+							"    // Tách CSV -> mảng chuỗi\r",
+							"    const brandList = String(byBrand || \"\").split(\",\").map(s => s.trim()).filter(Boolean);\r",
+							"    const catList   = String(byCat   || \"\").split(\",\").map(s => s.trim()).filter(Boolean);\r",
+							"\r",
+							"    // Parse between => field, min, max\r",
+							"    let betweenField, minVal, maxVal;\r",
+							"    if (between) {\r",
+							"        const parts = String(between).split(\",\").map(s => s.trim());\r",
+							"        [betweenField, minVal, maxVal] = parts;\r",
+							"    }\r",
+							"\r",
+							"    pm.test(\"Filters (brand/category/is_rental/price) hold when fields present\", () => {\r",
+							"        items.forEach(it => {\r",
+							"        // brand: in-list nếu có nhiều giá trị\r",
+							"        if (brandList.length) {\r",
+							"        pm.expect(brandList).to.include(String(it.brand_id));\r",
+							"        }\r",
+							"\r",
+							"        // category: in-list nếu có nhiều giá trị\r",
+							"        if (catList.length) {\r",
+							"        pm.expect(catList).to.include(String(it.category_id));\r",
+							"        }\r",
+							"\r",
+							"        // is_rental\r",
+							"        if (isRental !== \"\" && isRental !== undefined && isRental !== null) {\r",
+							"            const rental01 = (String(it.is_rental) === \"true\" || it.is_rental === 1 || it.is_rental === \"1\") ? \"1\" : \"0\";\r",
+							"            pm.expect(rental01).to.eql(String(isRental));\r",
+							"        }\r",
+							"\r",
+							"        // between price range\r",
+							"        if (betweenField && it[betweenField] !== undefined && it[betweenField] !== null) {\r",
+							"            if (minVal !== undefined && minVal !== \"\") pm.expect(+it[betweenField]).to.be.at.least(+minVal);\r",
+							"            if (maxVal !== undefined && maxVal !== \"\") pm.expect(+it[betweenField]).to.be.at.most(+maxVal);\r",
+							"        }\r",
+							"        });\r",
+							"    });\r",
+							"\r",
+							"    // Kiểm tra sort best-effort\r",
+							"    const sort = pm.iterationData.get(\"sort\");\r",
+							"    if (sort && items.length > 1) {\r",
+							"        const [sortFieldRaw, sortDirRaw] = String(sort).split(\",\").map(s => s.trim());\r",
+							"        const sortField = sortFieldRaw;\r",
+							"        const sortDir = (sortDirRaw || \"asc\").toLowerCase();\r",
+							"\r",
+							"        pm.test(`Roughly sorted by ${sortField} ${sortDir}`, () => {\r",
+							"        const vals = items.map(it => it[sortField]);\r",
+							"        const top = vals.slice(0, 10);\r",
+							"        const sorted = top.slice().sort((a,b)=> (a>b?1:a<b?-1:0));\r",
+							"        if (sortDir === \"desc\") sorted.reverse();\r",
+							"        pm.expect(JSON.stringify(top)).to.eql(JSON.stringify(sorted));\r",
+							"        });\r",
+							"    }\r",
+							"}\r",
+							"\r",
+							"const expectedMsg = pm.iterationData.get(\"expect_message\");\r",
+							"    if (expectedMsg) {\r",
+							"    pm.test(\"Response contains expected message\", () => {\r",
+							"        pm.expect(pm.response.text()).to.include(expectedMsg);\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/products?by_brand={{by_brand}}&by_category={{by_category}}&is_rental={{is_rental}}&between={{between}}&sort={{sort}}&page={{page}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "by_brand",
+							"value": "{{by_brand}}"
+						},
+						{
+							"key": "by_category",
+							"value": "{{by_category}}"
+						},
+						{
+							"key": "is_rental",
+							"value": "{{is_rental}}"
+						},
+						{
+							"key": "between",
+							"value": "{{between}}"
+						},
+						{
+							"key": "sort",
+							"value": "{{sort}}"
+						},
+						{
+							"key": "page",
+							"value": "{{page}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /products/{productId}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const expected = +(pm.iterationData.get(\"expect_status\") || 200);\r",
+							"pm.test(`Status matches expected: ${expected}`, () => pm.response.to.have.status(expected));\r",
+							"\r",
+							"const expectedMsg = pm.iterationData.get(\"expect_message\");\r",
+							"if (expectedMsg) {\r",
+							"    pm.test(`Response contains expected message: ${expectedMsg}`, () => {\r",
+							"        pm.expect(pm.response.text()).to.include(expectedMsg);\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"if (pm.response.code === 200) {\r",
+							"    let json; try { json = pm.response.json(); } catch(e) { json = null; }\r",
+							"    pm.test(\"Body is an object\", () => pm.expect(json && typeof json === 'object').to.be.true);\r",
+							"\r",
+							"    // So sánh id nếu có\r",
+							"    const expectedId = pm.iterationData.get(\"expect_id_equals\");\r",
+							"    const id = json?.productId ?? json?.ProductID ?? json?.id;\r",
+							"\r",
+							"    if (id !== undefined && expectedId) {\r",
+							"        pm.test(`Returned id (${id}) equals expected id (${expectedId})`, () => {\r",
+							"            // Bỏ leading zero ở cả 2 phía\r",
+							"            const normExpected = String(expectedId).replace(/^0+/, \"\");\r",
+							"            const normActual   = String(id).replace(/^0+/, \"\");\r",
+							"            pm.expect(normActual).to.eql(normExpected);\r",
+							"        });\r",
+							"    }\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/products/{{productId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"products",
+						"{{productId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /products/search?q=",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const expected = +(pm.iterationData.get(\"expect_status\") || 200);\r",
+							"pm.test(`Status matches expected: ${expected}`, () => pm.response.to.have.status(expected));\r",
+							"\r",
+							"const expectedMsg = pm.iterationData.get(\"expect_message\");\r",
+							"if (expectedMsg) {\r",
+							"    pm.test(`Response contains expected message: ${expectedMsg}`, () => {\r",
+							"        pm.expect(pm.response.text()).to.include(expectedMsg);\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"if (pm.response.code === 200) {\r",
+							"    let body; \r",
+							"    try { body = pm.response.json(); } catch(e) { body = null; }\r",
+							"\r",
+							"    const items = Array.isArray(body) ? body : (body?.content || body?.items || body?.results || []);\r",
+							"    pm.test(\"Response has an array of items\", () => pm.expect(Array.isArray(items)).to.be.true);\r",
+							"\r",
+							"    const term = pm.iterationData.get(\"q\");\r",
+							"    if (term) {\r",
+							"        const re = new RegExp(term, \"i\");\r",
+							"        pm.test(`All item names should contain q=${term}`, () => {\r",
+							"            // Kiểm tra tất cả item có field name chứa q\r",
+							"            const allMatch = items.every(it => re.test(String(it?.name ?? it?.Name ?? \"\")));\r",
+							"            pm.expect(allMatch).to.be.true;\r",
+							"        });\r",
+							"    }\r",
+							"\r",
+							"    // So sánh thực tế items rỗng / không rỗng với cột is_empty_array_data\r",
+							"    const expectEmptyFlag = String(pm.iterationData.get(\"is_empty_array_data\") || \"\");\r",
+							"    if (expectEmptyFlag) {\r",
+							"        const actualEmptyFlag = items.length === 0 ? \"1\" : \"0\";\r",
+							"        pm.test(`Check items empty flag (expected=${expectEmptyFlag}, actual=${actualEmptyFlag})`, () => {\r",
+							"            pm.expect(actualEmptyFlag).to.eql(expectEmptyFlag);\r",
+							"        });\r",
+							"    }\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/products/search?q={{q}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"products",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "{{q}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
