@@ -1,0 +1,10 @@
+﻿productId,expect_status,expect_message,expect_id_equals
+,404,Requested item not found,
+8,200,,8
+00008,200,,8
+99,404,Requested item not found,
+-1,404,Requested item not found,
+abc,404,Requested item not found,
+1 8,200,,1
+8;DROP TABLE favorites;--,200,,8
+1.00E+24,404,Requested item not found,
