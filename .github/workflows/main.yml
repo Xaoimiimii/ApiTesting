@@ -23,6 +23,7 @@ jobs:
         run: |
           postman collection run "47639393-49c88702-7f96-4d10-9f95-b22b69af8ffa" ^
             -e "47639393-351c31a9-629b-4d5c-be6c-32b53ffc26d2" ^
+            --env-var baseUrl="http://localhost:8091" \
             -i "GET /products (list + filter, sort, page)"
             -d "..\..\api1_products.csv" ^
             --working-dir "$GITHUB_WORKSPACE"
@@ -35,6 +36,7 @@ jobs:
         run: |
           postman collection run "47639393-49c88702-7f96-4d10-9f95-b22b69af8ffa" ^
             -e "47639393-351c31a9-629b-4d5c-be6c-32b53ffc26d2" ^
+            --env-var baseUrl="http://localhost:8091" \
             -i "GET /products/{productId}"
             -d "..\..\api2_products_productid.csv" ^
             --working-dir "$GITHUB_WORKSPACE"
@@ -47,6 +49,7 @@ jobs:
         run: |
           postman collection run "47639393-49c88702-7f96-4d10-9f95-b22b69af8ffa" ^
             -e "47639393-351c31a9-629b-4d5c-be6c-32b53ffc26d2" ^
+            --env-var baseUrl="http://localhost:8091" \
             -i "GET /products/search?q="
             -d "..\..\api3_search.csv" ^
             --working-dir "$GITHUB_WORKSPACE"
